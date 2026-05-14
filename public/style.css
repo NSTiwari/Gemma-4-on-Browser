@@ -235,3 +235,41 @@ progress::-webkit-progress-value { background-color: #3b82f6; }
   transition: opacity 0.5s, bottom 0.5s;
 }
 .toast.show { visibility: visible; opacity: 1; bottom: 40px; }
+
+
+/* --- NEW STATS STYLING --- */
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.output-title {
+  margin: 0;
+  color: #1f2937;
+}
+
+#stats-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.stat-tag {
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: inline-block;
+}
+
+.time-tag {
+  background-color: #8b5cf6; /* Violet */
+}
+
+.speed-tag {
+  background-color: #f59e0b; /* Amber */
+}

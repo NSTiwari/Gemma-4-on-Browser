@@ -56,7 +56,6 @@
         <div class="media-preview" id="media-preview-container">
           <h4>Media Preview</h4>
           
-          <!-- We use both an Image and a Canvas. Canvas activates for bounding boxes! -->
           <img id="image-preview" style="display: none;" alt="Preview" />
           <canvas id="image-canvas" style="display: none;"></canvas>
           
@@ -70,7 +69,15 @@
         <progress id="progress-bar" value="0" max="100" style="display:none;"></progress>
       </div>
 
-      <h3 class="output-title">Model Output:</h3>
+      <!-- NEW: Stats Header -->
+      <div class="output-header">
+        <h3 class="output-title">Model Output:</h3>
+        <div id="stats-container" style="display: none;">
+          <span id="time-stat" class="stat-tag time-tag">Time: 0.0s</span>
+          <span id="token-stat" class="stat-tag speed-tag">Speed: 0.0 t/s</span>
+        </div>
+      </div>
+      
       <div id="output-box"></div>
     </div>
     

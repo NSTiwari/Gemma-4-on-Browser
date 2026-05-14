@@ -15,6 +15,11 @@ const imagePreview = document.getElementById("image-preview");
 const imageCanvas = document.getElementById("image-canvas");
 const audioPreview = document.getElementById("audio-preview");
 
+// --- STATS GLOBALS ---
+const statsContainer = document.getElementById("stats-container");
+const timeStat = document.getElementById("time-stat");
+const tokenStat = document.getElementById("token-stat");
+
 const tabBtns = document.querySelectorAll('.tab-btn');
 
 let currentMode = "image";
@@ -89,7 +94,7 @@ tabBtns.forEach(btn => {
 
     if (currentMode === "image") {
       controlsGrid.classList.remove('text-mode');
-      promptInput.value = "Detect [object1], [object2].";
+      promptInput.value = "Describe this image.";
       uploadLabel.innerText = "Upload Image:";
       imageUpload.style.display = "block";
       audioInputMethods.style.display = "none";
@@ -209,13 +214,11 @@ recordBtn.addEventListener("click", async () => {
       });
 
       mediaRecorder.addEventListener("stop", async () => {
-        // Stop all mic tracks instantly to turn off the red mic icon in browser
         stream.getTracks().forEach(track => track.stop());
 
         const audioBlob = new Blob(audioChunks);
         const arrayBuffer = await audioBlob.arrayBuffer();
         
-        // Decode recorded webm/ogg and encode perfectly to WAV using AudioContext
         const audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         const wavBlob = audioBufferToWav(audioBuffer);
@@ -233,7 +236,6 @@ recordBtn.addEventListener("click", async () => {
   }
 });
 
-// WAV Encoder implementation
 function audioBufferToWav(buffer) {
   let numOfChan = buffer.numberOfChannels,
       length = buffer.length * numOfChan * 2 + 44,
@@ -241,11 +243,11 @@ function audioBufferToWav(buffer) {
       view = new DataView(bufferArray),
       channels = [], i, sample, offset = 0, pos = 0;
 
-  setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157); // "RIFF", "WAVE"
-  setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan); // "fmt "
+  setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157); 
+  setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan); 
   setUint32(buffer.sampleRate); setUint32(buffer.sampleRate * 2 * numOfChan);
   setUint16(numOfChan * 2); setUint16(16);
-  setUint32(0x61746164); setUint32(length - pos - 4); // "data"
+  setUint32(0x61746164); setUint32(length - pos - 4); 
 
   for (i = 0; i < buffer.numberOfChannels; i++) channels.push(buffer.getChannelData(i));
 
@@ -278,27 +280,22 @@ function drawBoundingBoxes(boxes) {
     imageCanvas.height = img.height;
     const ctx = imageCanvas.getContext("2d");
     
-    // Draw original image
     ctx.drawImage(img, 0, 0, img.width, img.height);
 
     boxes.forEach(box => {
-      // Gamma4 / PaliGemma standard coordinates: [y1, x1, y2, x2]
       const [y1, x1, y2, x2] = box.box_2d;
       const label = box.label;
       const color = stringToColor(label);
 
-      // Normalize by dividing by 1000 and multiplying by native dims
       const px1 = (x1 / 1000) * img.width;
       const py1 = (y1 / 1000) * img.height;
       const px2 = (x2 / 1000) * img.width;
       const py2 = (y2 / 1000) * img.height;
 
-      // Draw Box
       ctx.strokeStyle = color;
       ctx.lineWidth = Math.max(3, img.width / 250); 
       ctx.strokeRect(px1, py1, px2 - px1, py2 - py1);
 
-      // Draw Label Background
       ctx.fillStyle = color;
       ctx.font = `bold ${Math.max(16, img.width / 50)}px Arial`;
       const textWidth = ctx.measureText(label).width;
@@ -306,12 +303,10 @@ function drawBoundingBoxes(boxes) {
       
       ctx.fillRect(px1, py1 - textHeight - 8, textWidth + 12, textHeight + 8);
 
-      // Draw Label Text
       ctx.fillStyle = "#ffffff";
       ctx.fillText(label, px1 + 6, py1 - 6);
     });
 
-    // Hide original image, show beautifully annotated canvas
     imagePreview.style.display = "none";
     imageCanvas.style.display = "block";
   };
@@ -328,15 +323,20 @@ runBtn.addEventListener("click", async () => {
   isGenerating = true;
   runBtn.disabled = true;
   outputBox.innerHTML = "";
-  let aggregatedText = ""; // Collect text strictly for Object Detection Parsing
+  statsContainer.style.display = "none"; // Hide stats while generating
   
-  // Reset preview mode back to raw image when re-running
+  let aggregatedText = ""; 
+  
   if (currentMode === "image" && currentImageBase64) {
     imageCanvas.style.display = "none";
     imagePreview.style.display = "block";
   }
 
   statusText.innerText = "Status: Processing...";
+
+  // START TIMER: The exact moment the user hits Submit!
+  const startTime = performance.now();
+  let tokenCount = 0;
 
   try {
     const response = await fetch('/api/generate', {
@@ -358,15 +358,29 @@ runBtn.addEventListener("click", async () => {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
+      
+      tokenCount++; // Count incoming chunks (tokens)
+      
       const chunk = decoder.decode(value, { stream: true });
       outputBox.innerHTML += chunk;
       aggregatedText += chunk;
     }
 
+    // --- CALCULATE STATS ---
+    const endTime = performance.now();
+    const inferenceTimeSec = (endTime - startTime) / 1000;
+    
+    // Fallback approximation (Total characters / 4) in case TCP buffered the chunks too heavily
+    const estimatedTokens = Math.max(tokenCount, Math.ceil(aggregatedText.length / 4));
+    const tokensPerSec = (estimatedTokens / inferenceTimeSec).toFixed(2);
+
+    timeStat.innerText = `Time: ${inferenceTimeSec.toFixed(2)}s`;
+    tokenStat.innerText = `Speed: ${tokensPerSec} t/s`;
+    statsContainer.style.display = "flex"; // Show stats!
+
     // --- OBJECT DETECTION PARSER ---
     if (currentMode === "image" && prompt.toLowerCase().includes("detect")) {
       try {
-        // Extract array `[...]` to bypass extra conversational padding from AI
         const match = aggregatedText.match(/\[\s*\{[\s\S]*\}\s*\]/);
         if (match) {
           const parsedJSON = JSON.parse(match[0]);
