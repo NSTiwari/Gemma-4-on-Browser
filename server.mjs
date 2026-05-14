@@ -81,7 +81,7 @@ async function loadModel() {
   
   console.log("");
   console.log(`Model loaded successfully and is ready for inference`);
-  console.log(`Server listening at http://localhost:${port}`);
+  // console.log(`Server listening at http://localhost:${port}`);
   console.log("");
 
   broadcastStatus({ state: "ready", message: "Model is ready." });
