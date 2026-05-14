@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemma 4 Backend Inference</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <!-- Top Header & Watermark -->
+    <header class="app-header">
+      <h1>Gemma 4 Backend Inference</h1>
+      <div class="made-by">
+        Made by <img src="./google-dev.png" alt="Google Dev" class="google-logo" /> Nitin Tiwari
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Sleek Tabs Navigation -->
+      <div class="tabs">
+        <button class="tab-btn active" data-type="image">Image</button>
+        <button class="tab-btn" data-type="audio">Audio</button>
+        <button class="tab-btn" data-type="text">Text</button>
+      </div>
+
+      <div class="controls-grid" id="controls-grid">
+        <div class="input-section">
+          
+          <!-- Upload Group (Hides in Text Mode) -->
+          <div class="form-group" id="upload-group">
+            <label id="upload-label">Upload Image:</label>
+            
+            <!-- Image Upload -->
+            <input type="file" id="image-upload" accept="image/*" />
+            
+            <!-- Audio Controls (Hidden by default) -->
+            <div id="audio-input-methods" style="display: none;">
+              <div class="audio-controls-row">
+                <button id="record-btn" class="record-btn">🎤 Record Speech</button>
+                <span class="or-text">OR</span>
+                <input type="file" id="audio-upload" accept="audio/wav" />
+              </div>
+              <p id="record-status" class="record-status"></p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Prompt:</label>
+            <textarea id="prompt-input" rows="3">Detect person and mic.</textarea>
+          </div>
+          
+          <button id="run-btn" disabled>Connecting to Server...</button>
+        </div>
+
+        <!-- Preview Panel (Hides in Text Mode) -->
+        <div class="media-preview" id="media-preview-container">
+          <h4>Media Preview</h4>
+          
+          <!-- We use both an Image and a Canvas. Canvas activates for bounding boxes! -->
+          <img id="image-preview" style="display: none;" alt="Preview" />
+          <canvas id="image-canvas" style="display: none;"></canvas>
+          
+          <audio id="audio-preview" controls style="display: none;"></audio>
+          <p id="no-media-text">No media uploaded yet.</p>
+        </div>
+      </div>
+
+      <div id="status-container">
+        <p id="status-text" class="status-bold">Status: Connecting...</p>
+        <progress id="progress-bar" value="0" max="100" style="display:none;"></progress>
+      </div>
+
+      <h3 class="output-title">Model Output:</h3>
+      <div id="output-box"></div>
+    </div>
+    
+    <div id="toast" class="toast">Model loaded successfully!</div>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
