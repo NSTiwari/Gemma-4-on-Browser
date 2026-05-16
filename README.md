@@ -37,6 +37,9 @@ Gemma-4-on-Browser/
 | GET | `/api/status-check` | One-shot current status (JSON) |
 | POST | `/api/generate` | Run inference (image/audio/text) |
 
+## Results:
+<img src="https://github.com/NSTiwari/Gemma-4-on-Browser/blob/main/Gemma%204.png"/>
+
 ## Steps to run
 
 1. Clone the repository on your local machine.
