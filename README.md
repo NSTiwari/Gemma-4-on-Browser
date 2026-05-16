@@ -50,7 +50,5 @@ Gemma-4-on-Browser/
 
 ## Tips
 
-- Use **Ctrl+Enter** (or Cmd+Enter on Mac) to submit without clicking the button.
 - For object detection, include the word "detect" in your prompt. The app will parse the model's JSON bounding box output and draw labeled boxes directly on the image.
-- The Copy button appears after each inference so you can grab the output text easily.
-- Audio recording captures from your default microphone. Longer recordings work fine; the model handles full-sentence audio without truncation.
+- Gemma 4 supports audio files upto 30 seconds and videos upto 60 seconds.
