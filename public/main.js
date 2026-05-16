@@ -313,6 +313,35 @@ function drawBoundingBoxes(boxes) {
   img.src = currentImageBase64;
 }
 
+// --- COPY OUTPUT ---
+const copyBtn = document.getElementById("copy-btn");
+
+copyBtn.addEventListener("click", () => {
+  const text = outputBox.innerText;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    copyBtn.innerText = "Copied!";
+    setTimeout(() => { copyBtn.innerText = "Copy"; }, 2000);
+  }).catch(() => {
+    // fallback for browsers that block clipboard without HTTPS
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    copyBtn.innerText = "Copied!";
+    setTimeout(() => { copyBtn.innerText = "Copy"; }, 2000);
+  });
+});
+
+// Ctrl+Enter submits the form from anywhere on the page
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    if (!runBtn.disabled) runBtn.click();
+  }
+});
+
 // --- TRIGGER INFERENCE ---
 runBtn.addEventListener("click", async () => {
   const prompt = promptInput.value;
@@ -323,7 +352,8 @@ runBtn.addEventListener("click", async () => {
   isGenerating = true;
   runBtn.disabled = true;
   outputBox.innerHTML = "";
-  statsContainer.style.display = "none"; // Hide stats while generating
+  statsContainer.style.display = "none";
+  copyBtn.style.display = "none";
   
   let aggregatedText = ""; 
   
@@ -376,7 +406,8 @@ runBtn.addEventListener("click", async () => {
 
     timeStat.innerText = `Time: ${inferenceTimeSec.toFixed(2)}s`;
     tokenStat.innerText = `Speed: ${tokensPerSec} t/s`;
-    statsContainer.style.display = "flex"; // Show stats!
+    statsContainer.style.display = "flex";
+    copyBtn.style.display = "block";
 
     // --- OBJECT DETECTION PARSER ---
     if (currentMode === "image" && prompt.toLowerCase().includes("detect")) {

@@ -273,3 +273,19 @@ progress::-webkit-progress-value { background-color: #3b82f6; }
 .speed-tag {
   background-color: #f59e0b; /* Amber */
 }
+
+.copy-btn {
+  background-color: #e5e7eb;
+  color: #374151;
+  border: none;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.copy-btn:hover {
+  background-color: #d1d5db;
+}

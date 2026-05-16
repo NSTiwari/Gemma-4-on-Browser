@@ -69,12 +69,15 @@
         <progress id="progress-bar" value="0" max="100" style="display:none;"></progress>
       </div>
 
-      <!-- NEW: Stats Header -->
+      <!-- Stats Header + Copy Button -->
       <div class="output-header">
         <h3 class="output-title">Model Output:</h3>
-        <div id="stats-container" style="display: none;">
-          <span id="time-stat" class="stat-tag time-tag">Time: 0.0s</span>
-          <span id="token-stat" class="stat-tag speed-tag">Speed: 0.0 t/s</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="copy-btn" class="copy-btn" title="Copy output" style="display:none;">Copy</button>
+          <div id="stats-container" style="display: none;">
+            <span id="time-stat" class="stat-tag time-tag">Time: 0.0s</span>
+            <span id="token-stat" class="stat-tag speed-tag">Speed: 0.0 t/s</span>
+          </div>
         </div>
       </div>
       
